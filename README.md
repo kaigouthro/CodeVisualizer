@@ -266,10 +266,13 @@ Get CodeVisualizer up and running in your VS Code environment in just a few clic
 - All code parsing happens **100% locally** on your machine
 - No code is ever sent to external servers for flowchart generation
 - AST parsing uses local Tree-sitter WASM parsers with zero network requests
-- Your source code never leaves your computer
+- Your source code never leaves your computer during local parsing and graph generation
+- The extension now activates only when you open its view or run one of its commands, reducing background execution surface
+- Webviews are locked down with a stricter Content Security Policy and no broad outbound `connect-src` allowance
+- Mermaid rendering assets are still loaded for the webview renderer; for fully air-gapped/private deployments you should vendor those assets in your fork
 
 **AI Features (Optional & Opt-in):**
-- When AI labels are enabled, **only node labels** (short text snippets, not full code) are sent to LLM providers
+- When AI labels are enabled, **only extracted node labels** (short text snippets, not full code) are sent to LLM providers
 - API keys are stored securely using VS Code's built-in Secret Storage API with encryption
 - Smart caching minimizes API calls and reduces data transmission
 - Use Ollama for complete privacy with local model processing
@@ -277,9 +280,11 @@ Get CodeVisualizer up and running in your VS Code environment in just a few clic
 
 ### What Data is Collected?
 
-**None.** CodeVisualizer does not collect, store, or transmit your data.
+**No first-party telemetry.** CodeVisualizer does not include its own analytics or usage reporting pipeline.
 
-**Exception:** When AI labels are explicitly enabled by you, minimal label text (e.g., "if x > 0", "return result") is sent to your chosen LLM provider for translation. This is completely optional and can be disabled anytime.
+**Exceptions:**
+- When AI labels are explicitly enabled by you, minimal extracted label text (for example `if x > 0` or `return result`) is sent to your chosen LLM provider for translation. This is completely optional and can be disabled anytime.
+- If you have not yet vendored the renderer assets in your fork, webview asset requests may still be visible to the CDN/network path used to load Mermaid in the editor webview.
 
 ### API Key Security
 

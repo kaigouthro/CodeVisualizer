@@ -68,14 +68,6 @@ export class LLMService {
   public async translateLabels(params: TranslateParams): Promise<string | null> {
     const { mermaidSource, provider } = params;
     logInfo(`Translate request: provider=${provider}`);
-    // For Groq, request full Mermaid rewrite preserving structure
-    if (provider === "groq") {
-      logInfo(`Calling Groq full-mermaid rewrite`);
-      const rewrittenMermaid = await callGroqRewriteMermaid(params);
-      if (!rewrittenMermaid) return null;
-      return rewrittenMermaid;
-    }
-    // Default: label-only translation
     const extraction = extractNodeLabels(mermaidSource);
     if (extraction.labels.length === 0) return null;
     const rewritten = await callProvider(params, extraction.labels);
@@ -752,7 +744,7 @@ async function callOllama(
   return parsed;
 }
 
-// -------------------- Groq: full Mermaid rewrite path --------------------
+// -------------------- Legacy Groq full Mermaid rewrite path (unused after hardening) --------------------
 function buildGroqMermaidPrompt(
   mermaidSource: string,
   style?: string,

@@ -248,7 +248,7 @@ export class LLMManager {
     return this.mermaidCache.wrap(cacheKey, context, async () => {
       logInfo(`LLM call dispatch`);
       // Attempt incremental per-label caching flow for label-only providers
-      if (provider !== "groq") {
+      {
         const extraction: ExtractedLabels = extractNodeLabels(mermaidSource);
         if (extraction && extraction.labels.length > 0) {
           // Determine which labels are already cached

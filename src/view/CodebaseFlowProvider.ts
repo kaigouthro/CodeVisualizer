@@ -133,7 +133,7 @@ export class CodebaseFlowProvider {
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="${EnvironmentDetector.getContentSecurityPolicy(nonce)}">
+        <meta http-equiv="Content-Security-Policy" content="${EnvironmentDetector.getContentSecurityPolicy(nonce, webview.cspSource)}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Codebase Flow</title>
         <script nonce="${nonce}" src="https://cdn.jsdelivr.net/npm/mermaid@${MERMAID_VERSION}/dist/mermaid.min.js"></script>
@@ -285,11 +285,11 @@ export class CodebaseFlowProvider {
                     mermaid.initialize({
                         startOnLoad: true,
                         theme: '${theme}',
-                        securityLevel: 'loose',
+                        securityLevel: 'strict',
                         maxTextSize: 500000,
                         flowchart: {
                             useMaxWidth: false,
-                            htmlLabels: true,
+                            htmlLabels: false,
                             curve: 'basis',
                             padding: 20
                         }

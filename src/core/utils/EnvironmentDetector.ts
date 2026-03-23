@@ -82,19 +82,28 @@ export class EnvironmentDetector {
   /**
    * Get Content Security Policy adjusted for the environment
    */
-  public static getContentSecurityPolicy(nonce: string): string {
+  public static getContentSecurityPolicy(
+    nonce: string,
+    cspSource: string,
+  ): string {
     const env = this.detectEnvironment();
 
-    // Base CSP that should work in all environments
-    // Allow d3js.org for D3.js library
-    let csp = `default-src 'none'; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net https://d3js.org https://d3js.org/; style-src 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src https://cdn.jsdelivr.net;`;
+    const imgSources = env.requiresCompatibilityMode
+      ? `${cspSource} data: blob:`
+      : `${cspSource} data:`;
 
-    if (env.requiresCompatibilityMode) {
-      // For Cursor/Windsurf, add more permissive policies for compatibility
-      csp = `default-src 'none'; script-src 'nonce-${nonce}' https://cdn.jsdelivr.net https://d3js.org https://d3js.org/ 'unsafe-eval'; style-src 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; font-src https://cdn.jsdelivr.net data:; connect-src https: wss: ws:;`;
-    }
-
-    return csp;
+    return [
+      "default-src 'none'",
+      `script-src 'nonce-${nonce}' ${cspSource} https://cdn.jsdelivr.net`,
+      `style-src 'unsafe-inline' ${cspSource}`,
+      `img-src ${imgSources}`,
+      `font-src ${cspSource}`,
+      `connect-src 'none'`,
+      "frame-src 'none'",
+      "object-src 'none'",
+      "base-uri 'none'",
+      "form-action 'none'",
+    ].join('; ');
   }
 
   /**
