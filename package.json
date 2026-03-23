@@ -31,7 +31,18 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onStartupFinished"
+    "onCommand:codevisualizer.generateFlowchart",
+    "onCommand:codevisualizer.openFlowchartInPanel",
+    "onCommand:codevisualizer.openFlowchartToSide",
+    "onCommand:codevisualizer.openFlowchartInNewColumn",
+    "onCommand:codevisualizer.maximizeFlowchartPanel",
+    "onCommand:codevisualizer.refreshFlowchart",
+    "onCommand:codevisualizer.exportFlowchart",
+    "onCommand:codevisualizer.llm.enableLabels",
+    "onCommand:codevisualizer.llm.changeModel",
+    "onCommand:codevisualizer.llm.resetCache",
+    "onCommand:codevisualizer.visualizeCodebase",
+    "onView:codevisualizer.flowchartView"
   ],
   "contributes": {
     "viewsContainers": {
