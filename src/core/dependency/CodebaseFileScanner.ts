@@ -29,22 +29,37 @@ export class CodebaseFileScanner {
     const files = new Set<string>();
 
     for (const selectedPath of selectedPaths) {
+      // Resolve realpath to guard against symlink escapes, then clamp to workspace
+      let resolvedPath: string;
+      try {
+        resolvedPath = await this.fileSystem.realpath(selectedPath);
+      } catch {
+        // Path doesn't exist or can't be resolved; skip
+        continue;
+      }
+
+      const rel = path.relative(this.workspaceRoot, resolvedPath);
+      if (rel.startsWith("..") || path.isAbsolute(rel)) {
+        // Path escapes the workspace root; skip
+        continue;
+      }
+
       let stat;
       try {
-        stat = await this.fileSystem.stat(selectedPath);
+        stat = await this.fileSystem.stat(resolvedPath);
       } catch {
         continue;
       }
 
       if (stat.isFile()) {
-        if (this.isSupportedFile(selectedPath)) {
-          files.add(selectedPath);
+        if (this.isSupportedFile(resolvedPath)) {
+          files.add(resolvedPath);
         }
         continue;
       }
 
       if (stat.isDirectory()) {
-        const dirFiles = await this.walkForSupportedFiles(selectedPath);
+        const dirFiles = await this.walkForSupportedFiles(resolvedPath);
         for (const filePath of dirFiles) {
           files.add(filePath);
         }

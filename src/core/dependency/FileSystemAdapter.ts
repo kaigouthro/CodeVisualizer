@@ -13,6 +13,7 @@ export interface FileSystemAdapter {
   readFile(filePath: string): Promise<string>;
   stat(filePath: string): Promise<fs.Stats>;
   exists(filePath: string): Promise<boolean>;
+  realpath(filePath: string): Promise<string>;
 }
 
 export class NodeFileSystemAdapter implements FileSystemAdapter {
@@ -41,5 +42,9 @@ export class NodeFileSystemAdapter implements FileSystemAdapter {
     } catch {
       return false;
     }
+  }
+
+  public async realpath(filePath: string): Promise<string> {
+    return fs.promises.realpath(filePath);
   }
 }

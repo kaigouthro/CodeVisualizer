@@ -164,7 +164,7 @@ export class CodebaseAnalyzer {
 
     try {
       const resolved = modulePath.startsWith("/")
-        ? path.join(this.workspaceRoot, modulePath)
+        ? path.resolve(this.workspaceRoot, "." + modulePath)
         : path.resolve(fromDir, modulePath);
 
       const extensions = ["", ".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs"];
@@ -195,12 +195,28 @@ export class CodebaseAnalyzer {
     const fromDir = path.dirname(fromFile);
 
     try {
-      const pythonPath = modulePath.replace(/\./g, path.sep);
-      const localRelativePath = path.resolve(fromDir, pythonPath);
-      const workspaceRelativePath = path.resolve(this.workspaceRoot, pythonPath);
-      const candidateBases = modulePath.startsWith(".")
-        ? [localRelativePath]
-        : [localRelativePath, workspaceRelativePath];
+      const leadingDotsMatch = modulePath.match(/^\.+/);
+      const leadingDots = leadingDotsMatch?.[0] ?? "";
+      const remainingModulePath = modulePath.slice(leadingDots.length);
+      const moduleSubPath = remainingModulePath
+        ? remainingModulePath.replace(/\./g, path.sep)
+        : "";
+
+      let candidateBases: string[];
+      if (leadingDots.length > 0) {
+        // Python relative imports: N leading dots = N-1 parent traversals
+        // (one dot = current package, two dots = one level up, etc.)
+        const parentSegments = Array(Math.max(leadingDots.length - 1, 0)).fill("..");
+        const relativeBase = moduleSubPath
+          ? path.resolve(fromDir, ...parentSegments, moduleSubPath)
+          : path.resolve(fromDir, ...parentSegments);
+        candidateBases = [relativeBase];
+      } else {
+        const absoluteModulePath = modulePath.replace(/\./g, path.sep);
+        const localRelativePath = path.resolve(fromDir, absoluteModulePath);
+        const workspaceRelativePath = path.resolve(this.workspaceRoot, absoluteModulePath);
+        candidateBases = [localRelativePath, workspaceRelativePath];
+      }
 
       for (const basePath of candidateBases) {
         const withExt = basePath + ".py";
