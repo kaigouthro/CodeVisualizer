@@ -1,4 +1,3 @@
-import * as path from "path";
 import { CodebaseModule } from "./CodebaseAnalyzer";
 import { CodebaseMermaidGenerator } from "./CodebaseMermaidGenerator";
 
